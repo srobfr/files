@@ -8,7 +8,7 @@ install: ## Install dependancies
 
 publish-patch: test ## Publish a new version on NPM, with PATCH semver level
 	npm version patch
-	npm publish
+	npm publish --access public
 	git push origin "$$(git rev-parse --abbrev-ref HEAD)"
 	git push origin --tags
 
