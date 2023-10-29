@@ -1,0 +1,16 @@
+{
+  "name": "@srobfr/files",
+  "version": "0.0.1",
+  "description": "Helpers to programmatically edit text files, save, diff, folder-diff, etc.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "files",
+    "diff",
+    "scaffolding"
+  ],
+  "author": "Simon Robert <srob@srob.fr>",
+  "license": "MIT"
+}
