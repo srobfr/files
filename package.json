@@ -2,6 +2,10 @@
   "name": "@srob/files",
   "version": "0.0.2",
   "description": "Helpers to programmatically edit text files, save, diff, folder-diff, etc.",
+  "homepage": "https://github.com/srobfr/files",
+  "repository": {
+    "url": "https://github.com/srobfr/files"
+  },
   "type": "module",
   "main": "index.js",
   "scripts": {
