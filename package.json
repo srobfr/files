@@ -1,10 +1,11 @@
 {
-  "name": "@srobfr/files",
+  "name": "@srob/files",
   "version": "0.0.1",
   "description": "Helpers to programmatically edit text files, save, diff, folder-diff, etc.",
+  "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --test"
   },
   "keywords": [
     "files",
@@ -12,5 +13,9 @@
     "scaffolding"
   ],
   "author": "Simon Robert <srob@srob.fr>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "common-path-prefix": "^3.0.0",
+    "mkdirp": "^3.0.1"
+  }
 }
