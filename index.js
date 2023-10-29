@@ -1,5 +1,5 @@
 import { File } from "./File.js";
-import { readFile } from "node:fs/promises";
+import { readFile, stat } from "node:fs/promises";
 import { getFolderDiffCommand, getTmpDirPath } from "./config.js";
 import { resolve } from "node:path";
 import { exec } from "./exec.js";
@@ -44,8 +44,19 @@ export function newContext() {
      * @returns {Promise<string>}
      */
     async function folderDiff() {
-        // First, get the common parent dir of all the files in the context
-        const longestCommonDir = commonPathPrefix(Object.keys(context)).replace(/\/$/, '');
+        // First, get the common (existing) parent dir of all the files in the context
+        const longestCommonDirChain = commonPathPrefix(Object.keys(context)).replace(/\/$/, '').split("/");
+        while (longestCommonDirChain.length > 0) {
+            try {
+                await stat(longestCommonDirChain.join("/"));
+                break;
+            } catch (err) {
+                if (err.code === "ENOENT") longestCommonDirChain.pop()
+                else throw err;
+            }
+        }
+
+        const longestCommonDir = longestCommonDirChain.join("/");
         const tmpDir = `${await getTmpDirPath()}/folderDiff`;
         await exec(`rm -rf '${tmpDir}'`); // Just in case
 
