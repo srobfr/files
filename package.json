@@ -1,6 +1,6 @@
 {
   "name": "@srob/files",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Helpers to programmatically edit text files, save, diff, folder-diff, etc.",
   "type": "module",
   "main": "index.js",
