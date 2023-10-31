@@ -13,11 +13,6 @@ export class File {
     /**
      * @type string|null
      */
-    originalContent = null;
-
-    /**
-     * @type string|null
-     */
     content = null;
 
     /** 

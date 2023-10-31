@@ -1,7 +1,7 @@
 import { File } from "./File.js";
 import { readFile, stat } from "node:fs/promises";
 import { getFolderDiffCommand, getTmpDirPath } from "./config.js";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
 import { exec } from "./exec.js";
 import commonPathPrefix from "common-path-prefix";
 
@@ -45,24 +45,29 @@ export function newContext() {
      */
     async function folderDiff() {
         // First, get the common (existing) parent dir of all the files in the context
-        const longestCommonDirChain = commonPathPrefix(Object.keys(context)).replace(/\/$/, '').split("/");
-        while (longestCommonDirChain.length > 0) {
+        const filesPaths = Object.keys(context);
+        let longestCommonDir = (
+            filesPaths.length > 1
+                ? commonPathPrefix(filesPaths).replace(/\/$/, '')
+                : dirname(filesPaths[0])
+        );
+
+        while (longestCommonDir.length > 0) {
             try {
-                await stat(longestCommonDirChain.join("/"));
+                await stat(longestCommonDir);
                 break;
             } catch (err) {
-                if (err.code === "ENOENT") longestCommonDirChain.pop()
+                if (err.code === "ENOENT") longestCommonDir = dirname(longestCommonDir);
                 else throw err;
             }
         }
 
-        const longestCommonDir = longestCommonDirChain.join("/");
         const tmpDir = `${await getTmpDirPath()}/folderDiff`;
         await exec(`rm -rf '${tmpDir}'`); // Just in case
 
         // Then, save all the files under the tmp folder
         for (const file of Object.values(context)) {
-            const tmpPath = tmpDir + "/" + file.path.slice(longestCommonDir.length);
+            const tmpPath = tmpDir + file.path.substring(longestCommonDir.length);
             await file.save(tmpPath);
         }
 
