@@ -54,12 +54,12 @@ export async function getDiffCommand(original, modified) {
 
         [
             async () => await exec('command -v colordiff'),
-            `colordiff -u '${original}' '${modified}'`,
+            `colordiff -uN '${original}' '${modified}'`,
         ],
 
         [ // This one should be pretty standard
             async () => await exec('command -v diff'),
-            `diff -u '${original}' '${modified}'`,
+            `diff -uN '${original}' '${modified}'`,
         ],
     ];
 
