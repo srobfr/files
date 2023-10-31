@@ -76,19 +76,45 @@ export function newContext() {
         return stdout;
     }
 
+    /**
+     * Gets a diff for all the loaded files
+     * @returns {Promise<Array<string>>}
+     */
+    async function diffAll() {
+        const files = Object.values(context)
+        const diffs = [];
+        for (const file of files) diffs.push(await file.diff());
+        return diffs;
+    }
+
+    /**
+     * Saves all the loaded files
+     * @returns {Promise<void>}
+     */
+    async function saveAll() {
+        const files = Object.values(context)
+        for (const file of files) await file.save();
+    }
+
     return {
+        diffAll,
         folderDiff,
         load,
+        saveAll,
     };
 }
 
 // Initialize a global context for convenience
 const {
+    diffAll,
     folderDiff,
     load,
+    saveAll,
 } = newContext();
 
 export {
+    diffAll,
     folderDiff,
     load,
+    saveAll,
 };
