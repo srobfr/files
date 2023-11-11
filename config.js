@@ -38,6 +38,42 @@ export async function getFolderDiffCommand(originalDir, modifiedDir) {
 }
 
 /**
+ * Returns the diff command to use to obtain an interactive folder diff.
+ * @param {string} originalDir
+ * @param {string} modifiedDir
+ * @returns {Promise<string>}
+ */
+export async function getInteractiveFolderDiffCommand(originalDir, modifiedDir) {
+    const commands = [
+        // The diff commands to try, in the preference order
+
+        [ // Custom, using DIR env var
+            async () => !!process.env.DIFF, // Just check if the var is empty
+            `${process.env.DIFF} '${modifiedDir}' '${originalDir}'`,
+        ],
+
+        [
+            async () => await exec('command -v meld'),
+            `meld '${modifiedDir}' '${originalDir}'`,
+        ],
+
+        [
+            async () => await exec('command -v vimdiff'),
+            `vimdiff '${modifiedDir}' '${originalDir}'`,
+        ],
+    ];
+
+    for (const [check, cmd] of commands) {
+        try {
+            if (!await check()) continue;
+            return cmd;
+        } catch (err) {
+            continue;
+        }
+    }
+}
+
+/**
  * Returns the diff command to use to obtain a folder diff.
  * @param {string} original
  * @param {string} modified

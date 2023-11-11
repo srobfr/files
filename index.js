@@ -1,6 +1,6 @@
 import { File } from "./File.js";
 import { readFile, stat } from "node:fs/promises";
-import { getFolderDiffCommand, getTmpDirPath } from "./config.js";
+import { getFolderDiffCommand, getInteractiveFolderDiffCommand, getTmpDirPath } from "./config.js";
 import { dirname, resolve } from "node:path";
 import { exec } from "./exec.js";
 import commonPathPrefix from "common-path-prefix";
@@ -40,11 +40,24 @@ export function newContext() {
     }
 
     /**
+     * Saves all files under a given path in a temporary folder and runs an interactive folder diff command
+     * @argument {boolean} withCopy If true, the compared folder will first be copied to the tmp one. Use with caution on huge folders!
+     * @returns {Promise<void>}
+     */
+    async function interactiveFolderDiff(withCopy = false) {
+        await _folderDiff(withCopy, true);
+    }
+
+    /**
      * Saves all files under a given path in a temporary folder, runs a folder diff command and returns the output
-     * @argument {boolean} withCopy If true, the compared folder will first be copied to the tmp one. Use with caution!
+     * @argument {boolean} withCopy If true, the compared folder will first be copied to the tmp one. Use with caution on huge folders!
      * @returns {Promise<string>}
      */
     async function folderDiff(withCopy = false) {
+        return await _folderDiff(withCopy);
+    }
+
+    async function _folderDiff(withCopy = false, interactive = false) {
         // First, get the common (existing) parent dir of all the files in the context
         const filesPaths = Object.keys(context);
         let longestCommonDir = (
@@ -64,7 +77,10 @@ export function newContext() {
         }
 
         const tmpDir = `${await getTmpDirPath()}/folderDiff`;
-        await exec(`rm -rf '${tmpDir}'`); // Just in case
+        await exec([
+            `rm -rf '${tmpDir}'`, // Just in case
+            ...(withCopy ? [`rsync -r '${longestCommonDir}/' '${tmpDir}'`] : []),
+        ].join(" && "));
 
         // Then, save all the files under the tmp folder
         for (const file of Object.values(context)) {
@@ -72,10 +88,7 @@ export function newContext() {
             await file.save(tmpPath);
         }
 
-        const cmd = [
-            ...(withCopy ? [`cp -r '${longestCommonDir}' '${tmpDir}'`] : []),
-            await getFolderDiffCommand(longestCommonDir, tmpDir)
-        ].join(" && ");
+        const cmd = await (interactive ? getInteractiveFolderDiffCommand : getFolderDiffCommand)(longestCommonDir, tmpDir);
         const { stdout } = await exec(cmd);
         return stdout;
     }
@@ -100,10 +113,19 @@ export function newContext() {
         for (const file of files) await file.save();
     }
 
+    async function processCmdArgs() {
+        if (process.argv.includes("-a")) await saveAll();
+        else if (process.argv.includes("-c")) await interactiveFolderDiff(true);
+        else if (process.argv.includes("-e")) await interactiveFolderDiff(false);
+        else console.log((await diffAll()).join("\n"));
+    }
+
     return {
         diffAll,
         folderDiff,
+        interactiveFolderDiff,
         load,
+        processCmdArgs,
         saveAll,
     };
 }
@@ -112,13 +134,17 @@ export function newContext() {
 const {
     diffAll,
     folderDiff,
+    interactiveFolderDiff,
     load,
+    processCmdArgs,
     saveAll,
 } = newContext();
 
 export {
     diffAll,
     folderDiff,
+    interactiveFolderDiff,
     load,
+    processCmdArgs,
     saveAll,
 };
