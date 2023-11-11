@@ -41,9 +41,10 @@ export function newContext() {
 
     /**
      * Saves all files under a given path in a temporary folder, runs a folder diff command and returns the output
+     * @argument {boolean} withCopy If true, the compared folder will first be copied to the tmp one. Use with caution!
      * @returns {Promise<string>}
      */
-    async function folderDiff() {
+    async function folderDiff(withCopy = false) {
         // First, get the common (existing) parent dir of all the files in the context
         const filesPaths = Object.keys(context);
         let longestCommonDir = (
@@ -71,7 +72,10 @@ export function newContext() {
             await file.save(tmpPath);
         }
 
-        const cmd = await getFolderDiffCommand(longestCommonDir, tmpDir);
+        const cmd = [
+            ...(withCopy ? [`cp -r '${longestCommonDir}' '${tmpDir}'`] : []),
+            await getFolderDiffCommand(longestCommonDir, tmpDir)
+        ].join(" && ");
         const { stdout } = await exec(cmd);
         return stdout;
     }
