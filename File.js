@@ -1,5 +1,5 @@
 import { mkdirp } from "mkdirp";
-import { writeFile } from "node:fs/promises";
+import { writeFile, unlink } from "node:fs/promises";
 import { basename, dirname } from "node:path";
 import { getDiffCommand, getTmpDirPath } from "./config.js";
 import { exec } from "./exec.js";
@@ -21,7 +21,15 @@ export class File {
      */
     async save(path = null) {
         const p = path ?? this.path;
-        if (this.content === null) return; // Nothing to save
+        if (this.content === null) {
+            try {
+                await unlink(p);
+            } catch (err) {
+                if (err.code !== "ENOENT") throw err;
+            }
+            return;
+        }
+
         const dirPath = dirname(p);
         await mkdirp(dirPath);
         await writeFile(p, this.content);

@@ -70,4 +70,10 @@ test("files", async t => {
         console.debug(diff);
     });
 
+    await test("unlink nonexistent file", async t => {
+        const { load } = newContext();
+        const file = await load(`/tmp/non-existent.file`);
+        file.content = null;
+        await file.save();
+    });
 })
