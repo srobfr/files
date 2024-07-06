@@ -117,7 +117,7 @@ export function newContext() {
         if (process.argv.includes("-a")) await saveAll();
         else if (process.argv.includes("-c")) await interactiveFolderDiff(true);
         else if (process.argv.includes("-e")) await interactiveFolderDiff(false);
-        else console.log((await diffAll()).join("\n"));
+        else process.stdout.write((await diffAll()).join(""));
     }
 
     return {
