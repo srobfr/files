@@ -6,7 +6,10 @@ help: ## Shows an help screen
 install: ## Install dependancies
 	npm i
 
-publish-patch: build test ## Publish a new version on NPM, with PATCH semver level
+build:
+	npm run build
+
+publish-patch: test ## Publish a new version on NPM, with PATCH semver level
 	npm version patch
 	npm publish --access public
 	git push origin "$$(git rev-parse --abbrev-ref HEAD)"
