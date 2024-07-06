@@ -1,6 +1,6 @@
 {
   "name": "@srob/files",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "Helpers to programmatically edit text files, save, diff, folder-diff, etc.",
   "homepage": "https://github.com/srobfr/files",
   "repository": {
