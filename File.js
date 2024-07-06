@@ -46,6 +46,6 @@ export class File {
         await this.save(tmpPath);
         const cmd = await getDiffCommand(this.path, tmpPath);
         const { stdout } = await exec(cmd);
-        return stdout;
+        return stdout.replace(/\n$/, "");
     }
 }

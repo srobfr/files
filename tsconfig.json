@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+        "declaration": true,
+        "emitDeclarationOnly": true,
+        "declarationDir": "./types",
+        "allowJs": true
+    },
+    "files": [
+        "index.js"
+    ]
+}
